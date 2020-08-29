@@ -1,0 +1,2 @@
+- name: Incluse os-specific setup
+  include: "{{ ansible_os_family | lower }}.yml"
