@@ -1,0 +1,24 @@
+---
+# This playbook sets hostname
+
+- name: ensure hostname is not an ip
+  when: inventory_hostname is not regex("^(?:\d{1,3}\.){3}\d{1,3}$")
+  block:
+    - name: Change hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+# echo HOSTNAME > /etc/hostname
+#- name: Change hostname
+#  hostname:
+#    name: "{{ computer_name }}"
+
+# - name: Change computer name
+#   copy:
+#     content: "{{ computer_name }}\n"
+#     dest: "/etc/sysconfig/network"
+
+# - name: Copy /etc/hosts
+#   copy:
+#     src: "./files/hosts"
+#     dest: "/etc/hosts"
