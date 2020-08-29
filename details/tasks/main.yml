@@ -1,0 +1,14 @@
+---
+# This playbook ping the servers ans show system details
+
+- name: Gather facts
+  gather_facts:
+
+# ping REMOTE_IP
+- name: Ping servers
+  ping:
+
+# uname -s && lsb_release -sr
+- name: System details
+  debug:
+    msg: "{{ ansible_distribution }} {{ ansible_distribution_version}}"
