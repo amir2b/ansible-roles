@@ -1,5 +1,6 @@
 # sudo yum install -y yum-utils
 - name: Install yum-utils
+  become: true
   yum:
     name: yum-utils
     state: latest
@@ -7,12 +8,14 @@
 
 # sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 - name: Add Docker repo
+  become: true
   get_url:
     url: https://download.docker.com/linux/centos/docker-ce.repo
     dest: /etc/yum.repos.d/docer-ce.repo
 
 # sudo yum install docker-ce docker-ce-cli containerd.io
 - name: Install docker
+  become: true
   yum:
     name:
       - docker-ce

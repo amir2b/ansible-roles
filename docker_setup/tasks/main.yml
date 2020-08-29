@@ -4,6 +4,7 @@
 # sudo systemctl enable docker
 # sudo systemctl start docker
 - name: Enable and start docker
+  become: true
   systemd:
     name: docker
     state: started
@@ -11,6 +12,7 @@
 
 # sudo usermod -aG docker $USER
 - name: Add remote user to "docker" group
+  become: true
   user:
     name: "{{ ansible_user }}"
     groups: docker
@@ -21,6 +23,7 @@
 # sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 # sudo chmod +x /usr/local/bin/docker-compose
 - name: Install docker-compose
+  become: true
   get_url:
     url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64"
     dest: /usr/local/bin/docker-compose
