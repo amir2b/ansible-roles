@@ -1,0 +1,29 @@
+- name: Incluse os-specific setup
+  include: "{{ ansible_os_family | lower }}.yml"
+
+# sudo systemctl enable docker
+# sudo systemctl start docker
+- name: Enable and start docker
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+# sudo usermod -aG docker $USER
+- name: Add remote user to "docker" group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+## newgrp docker 
+
+# sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+# sudo chmod +x /usr/local/bin/docker-compose
+- name: Install docker-compose
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64"
+    dest: /usr/local/bin/docker-compose
+    owner: root
+    group: root
+    mode: 0755
