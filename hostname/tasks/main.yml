@@ -5,21 +5,21 @@
   become: true
   when: inventory_hostname is not regex("^(?:\d{1,3}\.){3}\d{1,3}$")
   block:
+
+    # echo HOSTNAME > /etc/hostname
     - name: Change hostname
       hostname:
         name: "{{ inventory_hostname }}"
 
-# echo HOSTNAME > /etc/hostname
-#- name: Change hostname
-#  hostname:
-#    name: "{{ computer_name }}"
+    # - name: Change computer name
+    #   copy:
+    #     content: "{{ computer_name }}\n"
+    #     dest: "/etc/sysconfig/network"
 
-# - name: Change computer name
-#   copy:
-#     content: "{{ computer_name }}\n"
-#     dest: "/etc/sysconfig/network"
-
-# - name: Copy /etc/hosts
-#   copy:
-#     src: "./files/hosts"
-#     dest: "/etc/hosts"
+    # echo IP HOSTNAME >> /etc/hosts
+    - name: Ensure hostname is in /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: "^{{ ansible_default_ipv4.address }}[ \t]+{{ ansible_hostname }}$"
+        line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
+        insertafter: "{{ ansible_hostname }}"
