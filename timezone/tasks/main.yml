@@ -1,3 +1,5 @@
+# sudo timedatectl set-timezone {{ timezone }}
 - name: Set timezone
+  become: true
   timezone:
     name: "{{ timezone }}"
