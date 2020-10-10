@@ -1,0 +1,7 @@
+- name: Install packages on CentOS 8
+  become: True
+  when: ansible_facts['distribution_major_version'] == '8'
+  dnf:
+    name: ['epel-release', 'htop', 'nano']
+    state: latest
+    update_cache: yes

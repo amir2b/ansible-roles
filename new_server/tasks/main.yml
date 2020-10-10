@@ -1,0 +1,12 @@
+# sudo timedatectl set-timezone {{ timezone }}
+- include_role:
+    name: timezone
+
+- include_role:
+    name: hostname
+
+- include_role:
+    name: update
+
+- name: Incluse os-specific setup
+  include: "{{ ansible_os_family | lower }}.yml"

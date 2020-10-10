@@ -1,0 +1,15 @@
+# sudo yum install -y epel-release
+- name: Enable EPEL repo on CentOS
+  become: True
+  yum:
+    name: ['epel-release']
+    state: latest
+    update_cache: yes
+
+# sudo yum install -y htop nano
+- name: Install packages on CentOS
+  become: True
+  yum:
+    name: ['htop', 'nano']
+    state: latest
+    update_cache: yes
