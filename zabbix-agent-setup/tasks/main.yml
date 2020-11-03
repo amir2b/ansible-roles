@@ -1,0 +1,43 @@
+- name: Incluse os-specific setup
+  include: "{{ ansible_os_family | lower }}.yml"
+  tags:
+    - setup
+
+# sudo sed -i 's#Server=127.0.0.1#Server=${ZABBIX_SERVER_IP}#g' /etc/zabbix/zabbix_agentd.conf
+- name: Config Server
+  become: true
+  lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: "^Server="
+    line: "Server={{ ZABBIX_SERVER_IP }}"
+  tags:
+    - config
+
+# # sudo sed -i 's/ServerActive=127.0.0.1/ServerActive=${ZABBIX_SERVER_IP}/g' /etc/zabbix/zabbix_agentd.conf
+# - name: Config ServerActive
+#   become: true
+#   lineinfile:
+#     path: /etc/zabbix/zabbix_agentd.conf
+#     regexp: "^ServerActive="
+#     line: "ServerActive={{ ZABBIX_SERVER_IP }}"
+#   tags:
+#     - config
+
+# sudo sed -i 's/Hostname=Zabbix server/#Hostname=Zabbix server/g' /etc/zabbix/zabbix_agentd.conf
+- name: Config Hostname
+  become: true
+  replace:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^(Hostname=.*)'
+    replace: '#\1'
+  tags:
+    - config
+
+# sudo systemctl enable zabbix-agent
+# sudo systemctl restarted zabbix-agent
+- name: Enable and start zabbix-agent
+  become: true
+  systemd:
+    name: zabbix-agent
+    state: restarted
+    enabled: yes

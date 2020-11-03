@@ -1,0 +1,7 @@
+# sudo apt install zabbix-agent
+- name: Install zabbix-agent
+  become: true
+  apt:
+    name: zabbix-agent
+    state: latest
+    update_cache: yes

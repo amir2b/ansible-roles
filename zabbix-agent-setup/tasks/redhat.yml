@@ -1,0 +1,22 @@
+# sudo apt install zabbix-agent
+- name: Install zabbix-agent
+  become: True
+  yum:
+    name: zabbix40-agent
+    state: latest
+    update_cache: yes
+
+# sudo firewall-cmd --add-port=10050/tcp --permanent
+# sudo firewall-cmd --reload
+- name: Open port on firewall
+  become: true
+  firewalld:
+    port: "10050/tcp"
+    permanent: yes
+    state: enabled
+
+- name: Reload service firewalld
+  become: true
+  systemd:
+    name: firewalld
+    state: reloaded
