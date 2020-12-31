@@ -1,0 +1,8 @@
+---
+
+- name: Incluse os-specific setup
+  include: "setup_{{ ansible_os_family | lower }}.yml"
+  tags: [ setup ]
+
+- name: Incluse config
+  include: "config.yml"

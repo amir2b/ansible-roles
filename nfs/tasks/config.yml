@@ -1,0 +1,31 @@
+---
+
+# sudo mkdir ${nfs_path}
+- name: Make directory
+  become: true
+  file:
+    name: "{{ item.path }}"
+    state: directory
+    owner: nobody
+    group: nogroup
+    mode: '0777'
+  loop: "{{ nfs_exports }}"
+  tags: [ config, server ]
+
+# sudo echo "${nfs_path} ${nfs_client}${nfs_permission}" >> /etc/exports
+- name: share access
+  become: true
+  lineinfile:
+    path: /etc/exports
+    regexp: "^{{ item.path }} {{ item.client }}"
+    line: "{{ item.path }} {{ item.client }}{{ item.permission }}"
+  loop: "{{ nfs_exports }}"
+  tags: [ config, server ]
+
+# sudo exportfs -r
+- name: exportfs -r
+  become: true
+  command: exportfs -r
+  notify:
+    - Restart nfs
+  tags: [ config, server ]

@@ -1,0 +1,8 @@
+---
+
+# sudo systemctl restart nfs-kernel-server
+- name: Restart nfs
+  become: true
+  systemd:
+    name: nfs-kernel-server
+    state: restarted

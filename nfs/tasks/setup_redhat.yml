@@ -1,0 +1,25 @@
+# sudo yum install nfs-utils
+- name: Install nfs package
+  become: true
+  yum:
+    name: nfs-utils
+    state: present
+    update_cache: yes
+  tags: [ setup, packages, server, client ]
+
+# sudo firewall-cmd --permanent --add-service=nfs
+- name: firewalld
+  become: true
+  firewalld:
+    service: nfs
+    permanent: yes
+    state: enabled
+  tags: [ setup, firewall, server ]
+
+# sudo firewall-cmd --reload
+- name: reload service firewalld
+  become: true
+  systemd:
+    name: firewalld
+    state: reloaded
+  tags: [ setup, firewall, server ]
