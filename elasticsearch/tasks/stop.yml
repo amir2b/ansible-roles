@@ -1,0 +1,19 @@
+# sudo systemctl disable monit
+# sudo systemctl stop monit
+# - name: Stop monit service
+#   become: true
+#   systemd:
+#     name: monit
+#     state: stopped
+#     enabled: no
+#   tags: [ never, stop ]
+
+# sudo systemctl disable elasticsearch
+# sudo systemctl stop elasticsearch
+- name: Stop elasticsearch service
+  become: true
+  systemd:
+    name: elasticsearch
+    state: stopped
+    enabled: no
+  tags: [ never, stop ]

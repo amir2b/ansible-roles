@@ -1,0 +1,27 @@
+# sudo rpm --install https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION:-7.9.3}-x86_64.rpm
+- name: Install elasticsearch package
+  become: true
+  yum:
+    name: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-{{ ELASTICSEARCH_VERSION }}-x86_64.rpm
+    state: present
+    update_cache: yes
+  tags: [ setup, packages ]
+
+# sudo firewall-cmd --add-port=9200/tcp --permanent
+# sudo firewall-cmd --add-port=9300/tcp --permanent
+- name: firewalld
+  become: true
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+  loop: [ 9200/tcp, 9300/tcp ]
+  tags: [ setup, firewall ]
+
+# sudo firewall-cmd --reload
+- name: reload service firewalld
+  become: true
+  systemd:
+    name: firewalld
+    state: reloaded
+  tags: [ setup, firewall ]

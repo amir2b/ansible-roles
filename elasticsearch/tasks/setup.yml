@@ -1,0 +1,83 @@
+---
+
+- name: Incluse os-specific setup
+  include: "setup_{{ ansible_os_family | lower }}.yml"
+  tags: [ setup ]
+
+# sudo swapoff -a
+- name: swapoff
+  become: true
+  command: swapoff -a
+  tags: [ setup ]
+
+# sudo sed -i '/ swap / s/^/#/' /etc/fstab
+- name: Disable SWAP in fstab
+  become: true
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*\sswap\s+swap\s.*)$'
+    replace: '# \1'
+  tags: [ setup ]
+
+# sudo ulimit -l unlimited
+# sudo echo "elasticsearch soft memlock unlimited" >> /etc/security/limits.conf
+# sudo echo "elasticsearch hard memlock unlimited" >> /etc/security/limits.conf
+- name: Add or modify memlock for soft and hard
+  become: true
+  pam_limits:
+    domain: elasticsearch
+    limit_type: "{{ item }}"
+    limit_item: memlock
+    value: unlimited
+  loop: [ soft, hard]
+  tags: [ setup ]
+
+# sudo ulimit -n 65536
+# sudo echo "elasticsearch - nofile 65535" >> /etc/security/limits.conf
+- name: Add or modify nofile
+  become: true
+  pam_limits:
+    domain: elasticsearch
+    limit_type: '-'
+    limit_item: nofile
+    value: '65535'
+  tags: [ setup ]
+
+# sudo sysctl -w vm.max_map_count=262144
+# sudo echo "vm.max_map_count=262144" >> /etc/sysctl.conf
+- name: sysctl vm.max_map_count
+  become: true
+  sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+  tags: [ setup ]
+
+# sudo sed -i 's/#MAX_LOCKED_MEMORY=/MAX_LOCKED_MEMORY=/' /etc/sysconfig/elasticsearch
+- name: Add or modify MAX_LOCKED_MEMORY
+  become: true
+  lineinfile:
+    path: /etc/sysconfig/elasticsearch
+    regexp: '^#?MAX_LOCKED_MEMORY='
+    line: MAX_LOCKED_MEMORY=unlimited
+  tags: [ setup ]
+
+# sudo echo "LimitMEMLOCK=infinity" >> /usr/lib/systemd/system/elasticsearch.service
+- name: Add or modify LimitMEMLOCK
+  become: true
+  lineinfile:
+    path: /usr/lib/systemd/system/elasticsearch.service
+    regexp: '^LimitMEMLOCK='
+    line: LimitMEMLOCK=infinity
+    insertafter: '^\[Service\]'
+  tags: [ setup ]
+
+# sudo systemctl daemon-reload
+# sudo systemctl enable elasticsearch
+- name: Enable elasticsearch service
+  become: true
+  systemd:
+    name: elasticsearch
+    enabled: yes
+    daemon_reload: yes
+  tags: [ setup ]

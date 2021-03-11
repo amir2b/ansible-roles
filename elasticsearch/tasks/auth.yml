@@ -1,0 +1,4 @@
+- name: Setup auth
+  become: true
+  shell: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto --batch > /etc/elasticsearch/password.txt
+  tags: [ never, auth ]

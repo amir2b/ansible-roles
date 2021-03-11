@@ -1,0 +1,38 @@
+---
+
+- name: Incluse os-specific backup
+  include: "backup_{{ ansible_os_family | lower }}.yml"
+  tags: [ never, backup ]
+
+- name: Create backup directory
+  become: true
+  file:
+    path: /mnt/elastic_backup
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+  tags: [ never, backup ]
+
+- name: Add or modify fstab
+  become: true
+  lineinfile:
+    path: /etc/fstab
+    regexp: '^{{ backup_ip }}:{{ backup_path }} '
+    line: "{{ backup_ip }}:{{ backup_path }} /mnt/elastic_backup nfs4 rw,_netdev,tcp 0 0"
+  tags: [ never, backup ]
+
+- name: Mount
+  become: true
+  command:
+    cmd: mount -a
+    warn: false
+  tags: [ never, backup ]
+
+- name: Config path.repo
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^path\.repo:'
+    line: 'path.repo: ["/mnt/elastic_backup/"]'
+    insertafter: '--- Paths ---'
+  tags: [ never, backup ]

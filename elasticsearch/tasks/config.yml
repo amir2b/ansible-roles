@@ -1,0 +1,159 @@
+- name: Config heap size
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/jvm.options
+    regexp: "{{ item.find }}"
+    line: "{{ item.replace }}"
+  loop:
+    - { find: '^-Xms', replace: '-Xms{{ JVM_HEAP_SIZE }}'}
+    - { find: '^-Xmx', replace: '-Xmx{{ JVM_HEAP_SIZE }}'}
+  tags: [ config ]
+
+- name: Config hosts
+  become: true
+  lineinfile:
+    path: /etc/hosts
+    regexp: "{{ item.name }}"
+    line: "{{ item.ip }}\t{{ item.name }}"
+  loop: "{{ ELASTICSEARCH_NODES }}"
+  tags: [ config ]
+
+- name: Config cluster.name
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?cluster\.name:'
+    line: "cluster.name: {{ ELASTICSEARCH_CLUSTER_NAME }}"
+    insertafter: '--- Cluster ---'
+  tags: [ config ]
+
+- name: Config node.name
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?node\.name:'
+    line: "node.name: {{ inventory_hostname }}"
+    insertafter: '--- Node ---'
+  tags: [ config ]
+
+# - name: Config node.master
+#   become: true
+#   lineinfile:
+#     path: /etc/elasticsearch/elasticsearch.yml
+#     regexp: '^#?node\.master:'
+#     line: "node.master: false"
+#     insertafter: '--- Node ---'
+#   tags: [ config ]
+
+# - name: Config node.data
+#   become: true
+#   lineinfile:
+#     path: /etc/elasticsearch/elasticsearch.yml
+#     regexp: '^#?node\.data:'
+#     line: "node.data: true"
+#     insertafter: '--- Node ---'
+#   tags: [ config ]
+
+# - name: Config node.ingest
+#   become: true
+#   lineinfile:
+#     path: /etc/elasticsearch/elasticsearch.yml
+#     regexp: '^#?node\.ingest:'
+#     line: "node.ingest: true"
+#     insertafter: '--- Node ---'
+#   tags: [ config ]
+
+# - name: Config node.ml
+#   become: true
+#   lineinfile:
+#     path: /etc/elasticsearch/elasticsearch.yml
+#     regexp: '^#?node\.ml:'
+#     line: "node.ml: false"
+#     insertafter: '--- Node ---'
+#   tags: [ config ]
+
+- name: Config bootstrap.memory_lock
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?bootstrap\.memory_lock:'
+    line: "bootstrap.memory_lock: true"
+    insertafter: '--- Memory ---'
+  tags: [ config ]
+
+- name: Config network.host
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?network\.host:'
+    line: "network.host: {{ inventory_hostname }}"
+    insertafter: '--- Network ---'
+  tags: [ config ]
+
+- name: Config http.port
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?http\.port:'
+    line: "http.port: 9200"
+    insertafter: '--- Network ---'
+  tags: [ config ]
+
+- name: Config discovery.seed_hosts
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?discovery\.seed_hosts:'
+    line: "discovery.seed_hosts: {{ ELASTICSEARCH_DISCOVERY_SEED_HOSTS }}"
+    insertafter: '--- Discovery ---'
+  tags: [ config ]
+
+- name: Config discovery.initial_master_nodes
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?cluster\.initial_master_nodes:'
+    line: "cluster.initial_master_nodes: {{ ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES }}"
+    insertafter: '--- Discovery ---'
+  tags: [ config ]
+
+- name: Config xpack.monitoring.enabled
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^xpack\.monitoring\.enabled:'
+    line: 'xpack.monitoring.enabled: true'
+  tags: [ config ]
+
+- name: Config xpack.monitoring.collection.enabled
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^xpack\.monitoring\.collection\.enabled:'
+    line: 'xpack.monitoring.collection.enabled: true'
+  tags: [ config ]
+
+- name: Config xpack.ml.enabled
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?xpack\.ml\.enabled:'
+    line: 'xpack.ml.enabled: false'
+  tags: [ config ]
+
+- name: Config action.auto_create_index
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^action\.auto_create_index:'
+    line: 'action.auto_create_index: .monitoring*,.watches,.triggered_watches,.watcher-history*,.ml*,.security,.kibana_task_manager'
+
+- name: Config ndices.memory.index_buffer_size
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^indices\.memory\.index_buffer_size:'
+    line: 'indices.memory.index_buffer_size: 20%'
+
+- name: Incluse config security
+  include: "config_security.yml"

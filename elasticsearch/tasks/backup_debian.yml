@@ -1,0 +1,18 @@
+---
+
+# sudo apt install nfs-common
+- name: Install nfs package
+  become: true
+  apt:
+    name: nfs-common
+    state: present
+    update_cache: yes
+  tags: [ never, backup ]
+
+# sudo ufw allow nfs
+- name: Allow nfs port
+  become: true
+  ufw:
+    port: nfs
+    rule: allow
+  tags: [ never, backup ]

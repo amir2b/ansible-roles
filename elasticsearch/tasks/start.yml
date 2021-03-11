@@ -1,0 +1,11 @@
+# sudo systemctl daemon-reload
+# sudo systemctl enable elasticsearch
+# sudo systemctl start elasticsearch
+- name: Start elasticsearch service
+  become: true
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  tags: [ never, start ]

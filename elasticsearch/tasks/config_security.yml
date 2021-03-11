@@ -1,0 +1,47 @@
+- name: Config xpack.security.enabled
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?xpack\.security\.enabled:'
+    line: 'xpack.security.enabled: true'
+  tags: [ config, security ]
+
+- name: Config xpack.security.transport.ssl.enabled
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?xpack\.security\.transport\.ssl\.enabled:'
+    line: 'xpack.security.transport.ssl.enabled: true'
+  tags: [ config, security ]
+
+- name: Config xpack.security.transport.ssl.keystore.path
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?xpack\.security\.transport\.ssl\.keystore\.path:'
+    line: 'xpack.security.transport.ssl.keystore.path: /etc/elasticsearch/certs/{{ inventory_hostname }}.p12'
+  tags: [ config, security ]
+
+- name: Config xpack.security.transport.ssl.truststore.path
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?xpack\.security\.transport\.ssl\.truststore\.path:'
+    line: 'xpack.security.transport.ssl.truststore.path: /etc/elasticsearch/certs/{{ inventory_hostname }}.p12'
+  tags: [ config, security ]
+
+- name: Config xpack.security.transport.ssl.keystore.password
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?xpack\.security\.transport\.ssl\.keystore\.password:'
+    line: 'xpack.security.transport.ssl.keystore.password: "{{ ELASTICSEARCH_KEYSTORE_PASSWORD }}"'
+  tags: [ config, security ]
+
+- name: Config xpack.security.transport.ssl.truststore.password
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?xpack\.security\.transport\.ssl\.truststore\.password:'
+    line: 'xpack.security.transport.ssl.truststore.password: "{{ ELASTICSEARCH_KEYSTORE_PASSWORD }}"'
+  tags: [ config, security ]

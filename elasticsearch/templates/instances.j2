@@ -1,0 +1,8 @@
+instances:
+{% for item in ELASTICSEARCH_NODES %}
+  - name: "{{ item.name }}"
+    ip:
+      - "{{ item.ip }}"
+    dns:
+      - "{{ item.name }}"
+{% endfor %}

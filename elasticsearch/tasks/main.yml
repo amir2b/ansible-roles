@@ -1,0 +1,29 @@
+- name: Incluse setup
+  include: "setup.yml"
+
+- name: Incluse config
+  include: "config.yml"
+
+- name: Incluse backup
+  include: "backup.yml"
+  tags: [ never, backup ]
+
+- name: Incluse cert
+  include: "cert.yml"
+  tags: [ never ]
+
+- name: Incluse auth
+  include: "auth.yml"
+  tags: [ never, auth ]
+
+- name: Stop elasticsearch service
+  include: "stop.yml"
+  tags: [ never, stop ]
+  
+- name: Start elasticsearch service
+  include: "start.yml"
+  tags: [ never, start ]
+
+- name: Restart elasticsearch service
+  include: "restart.yml"
+  tags: [ never, restart ]
