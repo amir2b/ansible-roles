@@ -1,0 +1,11 @@
+# sudo systemctl daemon-reload
+# sudo systemctl enable spark
+# sudo systemctl restart spark
+- name: Restart spark service
+  become: true
+  systemd:
+    name: spark
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+  tags: [ never, restart ]

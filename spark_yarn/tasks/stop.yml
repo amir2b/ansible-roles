@@ -1,0 +1,38 @@
+- name: Check spark exitst
+  stat:
+    path: /opt/spark
+  register: stat_spark
+  tags: [ never, stop, uninstall ]
+
+- name: Stop history server
+  become: yes
+  shell: /opt/spark/sbin/stop-history-server.sh
+  when: stat_spark.stat.exists and stat_spark.stat.isdir
+  tags: [ never, stop, uninstall ]
+  register: result
+
+- debug: var=result.stdout_lines
+
+- name: Check hadoop exitst
+  stat:
+    path: /opt/hadoop
+  register: stat_hadoop
+  tags: [ never, stop, uninstall ]
+
+- name: Stop yarn
+  become: yes
+  shell: /opt/hadoop/sbin/stop-yarn.sh
+  when: stat_hadoop.stat.exists and stat_hadoop.stat.isdir
+  tags: [ never, stop, uninstall ]
+  register: result
+
+- debug: var=result.stdout_lines
+
+- name: Stop dfs
+  become: yes
+  shell: /opt/hadoop/sbin/stop-dfs.sh
+  when: stat_hadoop.stat.exists and stat_hadoop.stat.isdir
+  tags: [ never, stop, uninstall ]
+  register: result
+
+- debug: var=result.stdout_lines

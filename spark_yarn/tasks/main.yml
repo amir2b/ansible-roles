@@ -1,0 +1,27 @@
+- name: Incluse setup
+  include: "setup.yml"
+  tags: [ setup, packages ]
+
+- name: Incluse config
+  include: "config.yml"
+  tags: [ config ]
+
+# - name: Incluse ssh
+#   include: "ssh.yml"
+#   tags: [ never, ssh ]
+
+- name: Stop spark service
+  include: "stop.yml"
+  tags: [ never, stop ]
+  
+- name: Start spark service
+  include: "start.yml"
+  tags: [ never, start ]
+
+- name: Restart spark service
+  include: "restart.yml"
+  tags: [ never, restart ]
+
+- name: Uninstall
+  include: "uninstall.yml"
+  tags: [ never, uninstall ]

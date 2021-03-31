@@ -1,0 +1,24 @@
+- name: Remove all directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /opt/spark
+    - /var/lib/spark
+    - /var/log/spark
+    - /opt/hadoop
+    - /var/lib/hadoop
+    - /var/log/hadoop
+  tags: [ never, uninstall ]
+
+- name: Remove all envirnments
+  become: yes
+  lineinfile:
+    path: /home/hadoop/.bash_aliases
+    regexp: "{{ item }}"
+    state: absent
+  with_items:
+    - /opt/spark/bin
+    - /opt/hadoop/bin
+  tags: [ never, uninstall ]

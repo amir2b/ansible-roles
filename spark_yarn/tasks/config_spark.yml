@@ -1,0 +1,89 @@
+---
+
+# sudo mkdir /var/log/hadoop
+# sudo mkdir /var/lib/hadoop
+- name: Create spark directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: hadoop
+    group: hadoop
+    mode: '0700'
+  with_items:
+    - /var/log/spark
+    - /var/lib/spark
+  tags: [ config ]
+
+# sudo cp /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh
+- name: Copy spark config files
+  become: yes
+  copy:
+    src: /opt/spark/conf/{{ item }}.template
+    dest: /opt/spark/conf/{{ item }}
+    remote_src: yes
+    force: no
+    owner: hadoop
+    group: hadoop
+  with_items:
+    - log4j.properties
+    - spark-defaults.conf
+    - spark-env.sh
+  tags: [ config ]
+
+# # sudo chmod 755 /opt/spark/conf/spark-env.sh
+# - name: Executable spark env
+#   become: yes
+#   file:
+#     path: /opt/spark/conf/spark-env.sh
+#     mode: '0755'
+#   tags: [ config ]
+
+# sudo nano /opt/spark/conf/log4j.properties
+- name: Set log4j.properties
+  become: yes
+  lineinfile:
+    path: /opt/spark/conf/log4j.properties
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    insertafter: "{{ item.key }}"
+  with_items:
+    - { "key": "log4j.rootCategory", "value": "WARN, console" }
+  tags: [ config ]
+
+# sudo nano /opt/spark/conf/spark-defaults.conf
+- name: Set core-site.xml
+  become: yes
+  lineinfile:
+    path: /opt/spark/conf/spark-defaults.conf
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    insertafter: "{{ item.key }}"
+  with_items:
+    - { "key": "spark.master", "value": "yarn"}
+    - { "key": "spark.driver.memory", "value": "512m"}
+    - { "key": "spark.executor.memory", "value": "512m"}
+    - { "key": "spark.yarn.am.memory", "value": "512m"}
+    - { "key": "spark.yarn.jars", "value": "hdfs://{{ node_master }}:9000/user/spark/share/lib/*.jar"}
+    - { "key": "spark.eventLog.enabled", "value": "true"}
+    - { "key": "spark.eventLog.dir", "value": "hdfs://{{ node_master }}:9000/spark-logs"}
+    - { "key": "spark.history.fs.logDirectory", "value": "hdfs://{{ node_master }}:9000/spark-logs"}
+    - { "key": "spark.history.provider", "value": "org.apache.spark.deploy.history.FsHistoryProvider"}
+    - { "key": "spark.history.fs.update.interval", "value": "10s"}
+  tags: [ config ]
+
+# sudo nano /opt/spark/conf/spark-env.sh
+- name: Set spark-env.sh
+  become: yes
+  lineinfile:
+    path: /opt/spark/conf/spark-env.sh
+    regexp: "^export {{ item.key }}="
+    line: "export {{ item.key }}={{ item.value }}"
+    insertafter: "{{ item.key }}"
+  with_items:
+    - { "key": "SPARK_LOG_DIR", "value": "/var/log/spark" }
+    - { "key": "SPARK_PID_DIR", "value": "/var/lib/spark" }
+    - { "key": "HADOOP_CONF_DIR", "value": "/opt/hadoop/etc/hadoop" }
+    - { "key": "YARN_CONF_DIR", "value": "/opt/hadoop/etc/hadoop" }
+    - { "key": "LD_LIBRARY_PATH", "value": "$LD_LIBRARY_PATH:/opt/hadoop/lib/native" }
+  tags: [ config ]

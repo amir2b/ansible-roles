@@ -1,0 +1,110 @@
+---
+
+# sudo mkdir /var/log/hadoop
+# sudo mkdir /var/lib/hadoop
+- name: Create hadoop directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: hadoop
+    group: hadoop
+    mode: '0700'
+  with_items:
+    - /var/log/hadoop
+    - /var/lib/hadoop
+  tags: [ config ]
+
+# sudo nano /opt/hadoop/etc/hadoop/hadoop-env.sh
+- name: Set hadoop environment
+  become: yes
+  lineinfile:
+    path: /opt/hadoop/etc/hadoop/hadoop-env.sh
+    regexp: "^export {{ item.key }}="
+    line: "export {{ item.key }}={{ item.value }}"
+    insertafter: "{{ item.key }}"
+  with_items:
+    - { "key": "JAVA_HOME", "value": "/usr/lib/jvm/java-8-openjdk-amd64"}
+    - { "key": "HADOOP_LOG_DIR", "value": "/var/log/hadoop"}
+    - { "key": "HDFS_NAMENODE_USER", "value": "hadoop"}
+    - { "key": "HDFS_DATANODE_USER", "value": "hadoop"}
+    - { "key": "HDFS_SECONDARYNAMENODE_USER", "value": "hadoop"}
+    - { "key": "YARN_RESOURCEMANAGER_USER", "value": "hadoop"}
+    - { "key": "YARN_NODEMANAGER_USER", "value": "hadoop"}
+  tags: [ config ]
+
+# sudo nano /opt/hadoop/etc/hadoop/core-site.xml
+- name: Set core-site.xml
+  become: yes
+  lineinfile:
+    path: /opt/hadoop/etc/hadoop/core-site.xml
+    regexp: "{{ item.key }}"
+    line: "<property><name>{{ item.key }}</name><value>{{ item.value }}</value></property>"
+    insertbefore: "</configuration>"
+  with_items:
+    - { "key": "fs.defaultFS", "value": "hdfs://{{ node_master }}:9000"}
+    - { "key": "hadoop.tmp.dir", "value": "/var/lib/hadoop"}
+  tags: [ config ]
+
+# sudo nano /opt/hadoop/etc/hadoop/hdfs-site.xml
+- name: Set hdfs-site.xml
+  become: yes
+  lineinfile:
+    path: /opt/hadoop/etc/hadoop/hdfs-site.xml
+    regexp: "{{ item.key }}"
+    line: "<property><name>{{ item.key }}</name><value>{{ item.value }}</value></property>"
+    insertbefore: "</configuration>"
+  with_items:
+    - { "key": "dfs.replication", "value": "{{ hdfs_replication }}"}
+  tags: [ config ]
+
+# sudo nano /opt/hadoop/etc/hadoop/mapred-site.xml
+- name: Set mapred-site.xml
+  become: yes
+  lineinfile:
+    path: /opt/hadoop/etc/hadoop/mapred-site.xml
+    regexp: "{{ item.key }}"
+    line: "<property><name>{{ item.key }}</name><value>{{ item.value }}</value></property>"
+    insertbefore: "</configuration>"
+  with_items:
+    - { "key": "mapreduce.framework.name", "value": "yarn"}
+    - { "key": "yarn.app.mapreduce.am.resource.mb", "value": "512"}
+    - { "key": "mapreduce.map.memory.mb", "value": "256"}
+    - { "key": "mapreduce.reduce.memory.mb", "value": "256"}
+  tags: [ config ]
+
+# sudo nano /opt/hadoop/etc/hadoop/yarn-site.xml
+- name: Set yarn-site.xml
+  become: yes
+  lineinfile:
+    path: /opt/hadoop/etc/hadoop/yarn-site.xml
+    regexp: "{{ item.key }}"
+    line: "<property><name>{{ item.key }}</name><value>{{ item.value }}</value></property>"
+    insertbefore: "</configuration>"
+  with_items:
+    - { "key": "yarn.acl.enable", "value": "0"}
+    - { "key": "yarn.resourcemanager.hostname", "value": "{{ node_master }}"}
+    - { "key": "yarn.nodemanager.aux-services", "value": "mapreduce_shuffle"}
+    - { "key": "yarn.nodemanager.resource.memory-mb", "value": "1536"}
+    - { "key": "yarn.scheduler.maximum-allocation-mb", "value": "1536"}
+    - { "key": "yarn.scheduler.minimum-allocation-mb", "value": "128"}
+    - { "key": "yarn.nodemanager.vmem-check-enabled", "value": "false"}
+  tags: [ config ]
+
+# sudo nano /opt/hadoop/etc/hadoop/workers
+- name: Remove localhost from workers
+  become: yes
+  lineinfile:
+    path: /opt/hadoop/etc/hadoop/workers
+    regexp: '^localhost$'
+    state: absent
+
+# sudo nano /opt/hadoop/etc/hadoop/workers
+- name: Set workers
+  become: yes
+  lineinfile:
+    path: /opt/hadoop/etc/hadoop/workers
+    regexp: "{{ item }}"
+    line: "{{ item }}"
+  with_items: "{{ hadoop_workers }}"
+  tags: [ config ]

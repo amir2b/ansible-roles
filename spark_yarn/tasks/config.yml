@@ -1,0 +1,39 @@
+---
+
+# sudo nano /etc/hosts
+- name: Set hosts
+  become: yes
+  lineinfile:
+    path: /etc/hosts
+    regexp: "{{ item.host }}"
+    line: "{{ item.ip }}\t{{ item.host }}"
+  loop: "{{ ips_hosts }}"
+  tags: [ config ]
+
+# echo "export SPARK_HOME=/opt/spark" >> /home/hadoop/.bash_aliases
+# echo "export HADOOP_HOME=/opt/hadoop" >> /home/hadoop/.bash_aliases
+# echo "export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin" >> /home/hadoop/.bash_aliases
+- name: Set hadoop environment
+  become: yes
+  lineinfile:
+    path: /home/hadoop/.bash_aliases
+    regexp: "{{ item.key }}"
+    line: "{{ item.value }}"
+    create: yes
+    owner: hadoop
+    group: hadoop
+  with_items:
+    # - { "key": "export SPARK_HOME=", "value": "/opt/spark"}
+    # - { "key": "export HADOOP_HOME=", "value": "/opt/hadoop"}
+    # - { "key": "export LD_LIBRARY_PATH=", "value": "$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH"}
+    - { "key": "/opt/spark/bin", "value": "export PATH=$PATH:/opt/spark/bin:/opt/spark/sbin"}
+    - { "key": "/opt/hadoop/bin", "value": "export PATH=$PATH:/opt/hadoop/bin:/opt/hadoop/sbin"}
+  tags: [ config ]
+
+- name: Incluse spark config
+  include: "config_spark.yml"
+  tags: [ config ]
+
+- name: Incluse hadoop config
+  include: "config_hadoop.yml"
+  tags: [ config ]
