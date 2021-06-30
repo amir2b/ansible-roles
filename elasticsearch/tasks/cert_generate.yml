@@ -1,0 +1,41 @@
+- name: Check that the certs.zip exists
+  become: true
+  tags: [ cert_generate ]
+  stat:
+    path: /etc/elasticsearch/certs/certs.zip
+  register: cert_zip
+
+- name: Check that the cert.p12 exists
+  become: true
+  tags: [ cert_generate ]
+  stat:
+    path: '/etc/elasticsearch/certs/{{ inventory_hostname }}/{{ inventory_hostname }}.p12'
+  register: cert_p12
+
+- name: block
+  when: cert_zip.stat.exists == false and cert_p12.stat.exists == false
+  block:
+    - name: Create instances.yml
+      become: true
+      tags: [ cert_generate ]
+      template:
+        src: instances.j2
+        dest: /etc/elasticsearch/certs/instances.yml
+        owner: root
+        group: elasticsearch
+        mode: '0600'
+
+    - name: Create cert.zip
+      become: true
+      tags: [ cert_generate ]
+      command:
+        cmd: /usr/share/elasticsearch/bin/elasticsearch-certutil cert --in /etc/elasticsearch/certs/instances.yml --out /etc/elasticsearch/certs/certs.zip --keep-ca-key --pem --silent
+        creates: /etc/elasticsearch/certs/certs.zip
+
+    - name: Downlaod certs
+      become: true
+      tags: [ cert_generate ]
+      fetch:
+        src: /etc/elasticsearch/certs/certs.zip
+        dest: files/certs.zip
+        flat: yes

@@ -14,34 +14,34 @@
     line: 'xpack.security.transport.ssl.enabled: true'
   tags: [ config, security ]
 
-- name: Config xpack.security.transport.ssl.keystore.path
+- name: Config xpack.security.transport.ssl.verification_mode
   become: true
   lineinfile:
     path: /etc/elasticsearch/elasticsearch.yml
-    regexp: '^#?xpack\.security\.transport\.ssl\.keystore\.path:'
-    line: 'xpack.security.transport.ssl.keystore.path: /etc/elasticsearch/certs/{{ inventory_hostname }}.p12'
+    regexp: '^#?xpack\.security\.transport\.ssl\.verification_mode:'
+    line: 'xpack.security.transport.ssl.verification_mode: certificate'
   tags: [ config, security ]
 
-- name: Config xpack.security.transport.ssl.truststore.path
+- name: Config xpack.security.transport.ssl.certificate
   become: true
   lineinfile:
     path: /etc/elasticsearch/elasticsearch.yml
-    regexp: '^#?xpack\.security\.transport\.ssl\.truststore\.path:'
-    line: 'xpack.security.transport.ssl.truststore.path: /etc/elasticsearch/certs/{{ inventory_hostname }}.p12'
+    regexp: '^#?xpack\.security\.transport\.ssl\.certificate_authorities:'
+    line: 'xpack.security.transport.ssl.certificate_authorities: /etc/elasticsearch/certs/ca.crt'
   tags: [ config, security ]
 
-- name: Config xpack.security.transport.ssl.keystore.password
+- name: Config xpack.security.transport.ssl.key
   become: true
   lineinfile:
     path: /etc/elasticsearch/elasticsearch.yml
-    regexp: '^#?xpack\.security\.transport\.ssl\.keystore\.password:'
-    line: 'xpack.security.transport.ssl.keystore.password: "{{ ELASTICSEARCH_KEYSTORE_PASSWORD }}"'
+    regexp: '^#?xpack\.security\.transport\.ssl\.key:'
+    line: 'xpack.security.transport.ssl.key: /etc/elasticsearch/certs/{{ inventory_hostname }}.key'
   tags: [ config, security ]
 
-- name: Config xpack.security.transport.ssl.truststore.password
+- name: Config xpack.security.transport.ssl.certificate
   become: true
   lineinfile:
     path: /etc/elasticsearch/elasticsearch.yml
-    regexp: '^#?xpack\.security\.transport\.ssl\.truststore\.password:'
-    line: 'xpack.security.transport.ssl.truststore.password: "{{ ELASTICSEARCH_KEYSTORE_PASSWORD }}"'
+    regexp: '^#?xpack\.security\.transport\.ssl\.certificate:'
+    line: 'xpack.security.transport.ssl.certificate: /etc/elasticsearch/certs/{{ inventory_hostname }}.crt'
   tags: [ config, security ]

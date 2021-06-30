@@ -1,1 +1,80 @@
 ---
+
+# sudo apt install apt-transport-https
+- name: Install proceeding
+  become: true
+  apt:
+    name: apt-transport-https
+    update_cache: yes
+  tags: [ setup, packages ]
+
+# wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+- name: Add an apt key by id from a keyserver
+  become: true
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  tags: [ setup, packages ]
+
+# echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+- name: Add elasticsearch repository into sources list
+  become: true
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
+    filename: elastic-7.x
+  tags: [ setup, packages ]
+
+# sudo apt-get update && sudo apt-get install elasticsearch
+- name: Install elasticsearch
+  become: true
+  apt:
+    name: elasticsearch
+    update_cache: yes
+  tags: [ setup, packages ]
+
+# sudo dpkg --set-selections elasticsearch hold
+- name: Prevent elasticsearch from being upgraded
+  become: true
+  dpkg_selections:
+    name: elasticsearch
+    selection: hold
+  tags: [ setup, packages ]
+
+# sudo sed -i 's/#MAX_OPEN_FILES=/MAX_OPEN_FILES=65535/' /etc/default/elasticsearch
+- name: Add or modify MAX_OPEN_FILES
+  become: true
+  lineinfile:
+    path: /etc/default/elasticsearch
+    regexp: '^#?MAX_OPEN_FILES='
+    line: MAX_OPEN_FILES=65535
+  tags: [ setup ]
+
+# sudo sed -i 's/#MAX_LOCKED_MEMORY=/MAX_LOCKED_MEMORY=unlimited/' /etc/default/elasticsearch
+- name: Add or modify MAX_LOCKED_MEMORY
+  become: true
+  lineinfile:
+    path: /etc/default/elasticsearch
+    regexp: '^#?MAX_LOCKED_MEMORY='
+    line: MAX_LOCKED_MEMORY=unlimited
+  tags: [ setup ]
+
+# sudo ufw allow ssh
+- name: ufw OpenSSH 
+  become: yes
+  ufw:
+    rule: allow
+    name: OpenSSH
+    state: enabled
+  tags: [ setup, packages ]
+
+# sudo ufw allow 9200/tcp
+# sudo ufw allow 9300/tcp
+- name: ufw open ports
+  become: yes
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+    comment: Elasticsearch
+    state: enabled
+  loop: [ "9200", "9300" ]
+  tags: [ setup, packages ]

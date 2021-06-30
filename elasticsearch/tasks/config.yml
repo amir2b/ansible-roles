@@ -36,41 +36,41 @@
     insertafter: '--- Node ---'
   tags: [ config ]
 
-# - name: Config node.master
-#   become: true
-#   lineinfile:
-#     path: /etc/elasticsearch/elasticsearch.yml
-#     regexp: '^#?node\.master:'
-#     line: "node.master: false"
-#     insertafter: '--- Node ---'
-#   tags: [ config ]
+- name: Config node.master
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?node\.master:'
+    line: "node.master: {{ 'true' if ELASTICSEARCH_NODE_MASTER else 'false' }}"
+    insertafter: '--- Node ---'
+  tags: [ config ]
 
-# - name: Config node.data
-#   become: true
-#   lineinfile:
-#     path: /etc/elasticsearch/elasticsearch.yml
-#     regexp: '^#?node\.data:'
-#     line: "node.data: true"
-#     insertafter: '--- Node ---'
-#   tags: [ config ]
+- name: Config node.data
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?node\.data:'
+    line: "node.data: {{ 'true' if ELASTICSEARCH_NODE_DATA else 'false' }}"
+    insertafter: '--- Node ---'
+  tags: [ config ]
 
-# - name: Config node.ingest
-#   become: true
-#   lineinfile:
-#     path: /etc/elasticsearch/elasticsearch.yml
-#     regexp: '^#?node\.ingest:'
-#     line: "node.ingest: true"
-#     insertafter: '--- Node ---'
-#   tags: [ config ]
+- name: Config node.ingest
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?node\.ingest:'
+    line: "node.ingest: {{ 'true' if ELASTICSEARCH_NODE_INGEST else 'false' }}"
+    insertafter: '--- Node ---'
+  tags: [ config ]
 
-# - name: Config node.ml
-#   become: true
-#   lineinfile:
-#     path: /etc/elasticsearch/elasticsearch.yml
-#     regexp: '^#?node\.ml:'
-#     line: "node.ml: false"
-#     insertafter: '--- Node ---'
-#   tags: [ config ]
+- name: Config node.ml
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?node\.ml:'
+    line: "node.ml: {{ 'true' if ELASTICSEARCH_NODE_ML else 'false' }}"
+    insertafter: '--- Node ---'
+  tags: [ config ]
 
 - name: Config bootstrap.memory_lock
   become: true
@@ -117,6 +117,9 @@
     insertafter: '--- Discovery ---'
   tags: [ config ]
 
+- name: Incluse config security
+  include: "config_security.yml"
+
 - name: Config xpack.monitoring.enabled
   become: true
   lineinfile:
@@ -154,6 +157,3 @@
     path: /etc/elasticsearch/elasticsearch.yml
     regexp: '^indices\.memory\.index_buffer_size:'
     line: 'indices.memory.index_buffer_size: 20%'
-
-- name: Incluse config security
-  include: "config_security.yml"

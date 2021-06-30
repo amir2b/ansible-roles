@@ -7,6 +7,15 @@
     update_cache: yes
   tags: [ setup, packages ]
 
+# sudo sed -i 's/#MAX_LOCKED_MEMORY=/MAX_LOCKED_MEMORY=unlimited/' /etc/sysconfig/elasticsearch
+- name: Add or modify MAX_LOCKED_MEMORY
+  become: true
+  lineinfile:
+    path: /etc/sysconfig/elasticsearch
+    regexp: '^#?MAX_LOCKED_MEMORY='
+    line: MAX_LOCKED_MEMORY=unlimited
+  tags: [ setup ]
+
 # sudo firewall-cmd --add-port=9200/tcp --permanent
 # sudo firewall-cmd --add-port=9300/tcp --permanent
 - name: firewalld

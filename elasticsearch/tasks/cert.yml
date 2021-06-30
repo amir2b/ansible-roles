@@ -2,57 +2,25 @@
 # sudo chmod 2755 /etc/elasticsearch/certs
 - name: Create a cert directory
   become: true
-  tags: [ cert ]
+  tags: [ cert, cert_generate ]
   file:
     path: /etc/elasticsearch/certs
     state: directory
     mode: '2755'
 
-- name: Check that the certs.zip exists
+- name: Generate cert
+  include: "cert_generate.yml"
+  tags: [ cert_generate ]
+
+- name: Copy new key
   become: true
   tags: [ cert ]
-  stat:
-    path: /etc/elasticsearch/certs/certs.zip
-  register: cert_zip
-
-- name: Check that the cert.p12 exists
-  become: true
-  tags: [ cert ]
-  stat:
-    path: '/etc/elasticsearch/certs/{{ inventory_hostname }}/{{ inventory_hostname }}.p12'
-  register: cert_p12
-
-- name: block
-  when: cert_zip.stat.exists == false and cert_p12.stat.exists == false
-  block:
-    - name: Create instances.yml
-      become: true
-      tags: [ cert ]
-      template:
-        src: instances.j2
-        dest: /etc/elasticsearch/certs/instances.yml
-        owner: root
-        group: elasticsearch
-        mode: '0600'
-
-    - name: Create cert.zip
-      become: true
-      tags: [ cert ]
-      command:
-        cmd: /usr/share/elasticsearch/bin/elasticsearch-certutil cert --silent --in /etc/elasticsearch/certs/instances.yml --out /etc/elasticsearch/certs/certs.zip --pass "{{ ELASTICSEARCH_KEYSTORE_PASSWORD }}"
-        creates: /etc/elasticsearch/certs/certs.zip
-
-    - name: Install unzip package
-      become: true
-      tags: [ cert ]
-      package:
-        name: unzip
-        state: present
-
-    - name: Extract cert.zip
-      become: true
-      tags: [ cert ]
-      unarchive:
-        src: /etc/elasticsearch/certs/certs.zip
-        dest: /etc/elasticsearch/certs/
-        remote_src: yes
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/elasticsearch/certs/"
+    owner: root
+    group: elasticsearch
+    backup: yes
+  with_items:
+    - "files/certs/ca/"
+    - "files/certs/{{ inventory_hostname }}/"
