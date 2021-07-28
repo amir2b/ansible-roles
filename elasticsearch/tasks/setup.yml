@@ -1,28 +1,29 @@
 ---
 
 - name: Incluse os-specific setup
-  include: "setup_{{ ansible_os_family | lower }}.yml"
   tags: [ setup ]
+  include: "setup_{{ ansible_os_family | lower }}.yml"
 
 # sudo swapoff -a
 - name: swapoff
+  tags: [ setup ]
   become: true
   command: swapoff -a
-  tags: [ setup ]
 
 # sudo sed -i '/ swap / s/^/#/' /etc/fstab
 - name: Disable SWAP in fstab
+  tags: [ setup ]
   become: true
   replace:
     path: /etc/fstab
-    regexp: '^([^#].*\sswap\s+swap\s.*)$'
+    regexp: '^([^#].*\sswap\s.*)$'
     replace: '# \1'
-  tags: [ setup ]
 
 # sudo ulimit -l unlimited
 # sudo echo "elasticsearch soft memlock unlimited" >> /etc/security/limits.conf
 # sudo echo "elasticsearch hard memlock unlimited" >> /etc/security/limits.conf
 - name: Add or modify memlock for soft and hard
+  tags: [ setup ]
   become: true
   pam_limits:
     domain: elasticsearch
@@ -30,45 +31,64 @@
     limit_item: memlock
     value: unlimited
   loop: [ soft, hard]
-  tags: [ setup ]
 
 # sudo ulimit -n 65536
 # sudo echo "elasticsearch - nofile 65535" >> /etc/security/limits.conf
 - name: Add or modify nofile
+  tags: [ setup ]
   become: true
   pam_limits:
     domain: elasticsearch
     limit_type: '-'
     limit_item: nofile
     value: '65535'
-  tags: [ setup ]
 
 # sudo sysctl -w vm.max_map_count=262144
 # sudo echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 - name: sysctl vm.max_map_count
+  tags: [ setup ]
   become: true
   sysctl:
     name: vm.max_map_count
     value: '262144'
     state: present
-  tags: [ setup ]
 
 # sudo echo "LimitMEMLOCK=infinity" >> /usr/lib/systemd/system/elasticsearch.service
 - name: Add or modify LimitMEMLOCK
+  tags: [ setup ]
   become: true
   lineinfile:
     path: /usr/lib/systemd/system/elasticsearch.service
     regexp: '^LimitMEMLOCK='
     line: LimitMEMLOCK=infinity
     insertafter: '^\[Service\]'
+
+# sudo echo "RestartSec=5s" >> /usr/lib/systemd/system/elasticsearch.service
+- name: Add or modify RestartSec
   tags: [ setup ]
+  become: true
+  lineinfile:
+    path: /usr/lib/systemd/system/elasticsearch.service
+    regexp: '^RestartSec='
+    line: RestartSec=5s
+    insertafter: '^\[Service\]'
+
+# sudo echo "Restart=on-failure" >> /usr/lib/systemd/system/elasticsearch.service
+- name: Add or modify Restart
+  tags: [ setup ]
+  become: true
+  lineinfile:
+    path: /usr/lib/systemd/system/elasticsearch.service
+    regexp: '^Restart='
+    line: Restart=on-failure
+    insertafter: '^\[Service\]'
 
 # sudo systemctl daemon-reload
 # sudo systemctl enable elasticsearch
 - name: Enable elasticsearch service
+  tags: [ setup ]
   become: true
   systemd:
     name: elasticsearch
     enabled: yes
     daemon_reload: yes
-  tags: [ setup ]
