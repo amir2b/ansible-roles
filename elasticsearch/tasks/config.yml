@@ -36,6 +36,15 @@
     line: "node.name: {{ inventory_hostname }}"
     insertafter: '--- Node ---'
 
+- name: Config node.attr.rack_id
+  tags: [ config ]  
+  become: true
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?node\.attr\.rack_id:'
+    line: "node.attr.rack_id: {{ ELASTICSEARCH_NODE_ATTR_RACK_ID }}"
+    insertafter: 'node.attr'
+
 - name: Config node.master
   tags: [ config ]  
   become: true
