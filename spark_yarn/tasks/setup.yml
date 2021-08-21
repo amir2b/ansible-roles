@@ -2,26 +2,27 @@
 
 #################### Install java ####################
 
-# sudo apt install -y openjdk-8-jdk-headless
-- name: Install java 8
+# sudo apt install -y default-jre
+- name: Install java
+  tags: [ setup, packages ]
   become: yes
   apt:
-    name: openjdk-8-jdk-headless
+    name: default-jre
     update_cache: yes
-  tags: [ setup, packages ]
 
 #################### Create hadoop user ####################
 
 # sudo groupadd hadoop
 - name: Add the group 'hadoop'
+  tags: [ setup, packages ]
   become: yes
   user:
     name: hadoop
-  tags: [ setup, packages ]
 
 # sudo adduser hadoop
 # ssh-keygen -t rsa
 - name: Add the user 'hadoop'
+  tags: [ setup, packages ]
   become: yes
   user:
     name: hadoop
@@ -29,32 +30,32 @@
     shell: /bin/bash
     generate_ssh_key: yes
     comment: Hadoop
-  tags: [ setup, packages ]
 
 #################### Install spark ####################
 
 - name: Check that the spark exists
+  tags: [ setup, packages ]
   stat:
     path: /opt/spark
   register: stat_spark
-  tags: [ setup, packages ]
 
 - name: Install spark
   when: stat_spark.stat.isdir is not defined
   block:
 
-    # wget https://downloads.apache.org/spark/spark-3.1.1/spark-3.1.1-bin-hadoop3.2.tgz
+    # wget https://downloads.apache.org/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
     - name: Download spark {{ spark_version }} archive file
+      tags: [ setup, packages ]
       become: yes
       get_url:
         url: https://downloads.apache.org/spark/spark-{{ spark_version }}/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz
         dest: /home/hadoop/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz
         owner: hadoop
         group: hadoop
-      tags: [ setup, packages ]
 
-    # tar -xzf spark-3.1.1-bin-hadoop3.2.tgz
+    # tar -xzf spark-3.1.2-bin-hadoop3.2.tgz
     - name: Extract spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz into /opt/
+      tags: [ setup, packages ]
       become: yes
       unarchive:
         src: /home/hadoop/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}.tgz
@@ -62,15 +63,15 @@
         remote_src: yes
         owner: hadoop
         group: hadoop
-      tags: [ setup, packages ]
 
-    # sudo mv /opt/spark-3.1.1-bin-hadoop3.2 /opt/spark
+    # sudo mv /opt/spark-3.1.2-bin-hadoop3.2 /opt/spark
     - name: Rename spark directory
+      tags: [ setup, packages ]
       become: yes
       command: mv "/opt/spark-{{ spark_version }}-bin-hadoop{{ spark_hadoop_version }}" /opt/spark
-      tags: [ setup, packages ]
 
     - name: Remvoe all cmd files
+      tags: [ setup, packages ]
       become: yes
       file:
         path: "/opt/spark/{{ item }}"
@@ -92,32 +93,32 @@
         - bin/spark-sql.cmd
         - bin/spark-submit2.cmd
         - bin/spark-submit.cmd
-      tags: [ setup, packages ]
 
 #################### Install hadoop ####################
 
 - name: Check that the hadoop exists
+  tags: [ setup, packages ]
   stat:
     path: /opt/hadoop
   register: stat_hadoop
-  tags: [ setup, packages ]
 
 - name: Install Hadoop
   when: stat_hadoop.stat.isdir is not defined
   block:
 
-    # wget https://downloads.apache.org/hadoop/common/hadoop-3.2.2/hadoop-3.2.2.tar.gz
+    # wget https://downloads.apache.org/hadoop/common/hadoop-3.3.1/hadoop-3.3.1.tar.gz
     - name: Download hadoop {{ hadoop_version }} archive file
+      tags: [ setup, packages ]
       become: yes
       get_url:
         url: https://downloads.apache.org/hadoop/common/hadoop-{{ hadoop_version }}/hadoop-{{ hadoop_version }}.tar.gz
         dest: /home/hadoop/hadoop-{{ hadoop_version }}.tar.gz
         owner: hadoop
         group: hadoop
-      tags: [ setup, packages ]
 
-    # tar xzf hadoop-3.2.2.tar.gz
+    # tar xzf hadoop-3.3.1.tar.gz
     - name: Extract hadoop-{{ hadoop_version }}.tar.gz into /opt/
+      tags: [ setup, packages ]
       become: yes
       unarchive:
         src: /home/hadoop/hadoop-{{ hadoop_version }}.tar.gz
@@ -125,15 +126,15 @@
         remote_src: yes
         owner: hadoop
         group: hadoop
-      tags: [ setup, packages ]
 
-    # sudo mv /opt/hadoop-3.2.2 /opt/spark
-    - name: Rename spark directory
+    # sudo mv /opt/hadoop-3.3.1 /opt/hadoop
+    - name: Rename hadoop directory
+      tags: [ setup, packages ]
       become: yes
       command: mv "/opt/hadoop-{{ hadoop_version }}" /opt/hadoop
-      tags: [ setup, packages ]
 
     - name: Remvoe all cmd files
+      tags: [ setup, packages ]
       become: yes
       file:
         path: "/opt/hadoop/{{ item }}"
@@ -149,4 +150,3 @@
         - sbin/stop-all.cmd
         - sbin/stop-dfs.cmd
         - sbin/stop-yarn.cmd
-      tags: [ setup, packages ]

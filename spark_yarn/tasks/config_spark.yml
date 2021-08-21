@@ -1,7 +1,23 @@
 ---
 
-# sudo mkdir /var/log/hadoop
-# sudo mkdir /var/lib/hadoop
+# echo "export SPARK_HOME=/opt/spark" >> /home/hadoop/.bash_aliases
+# echo "export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin" >> /home/hadoop/.bash_aliases
+- name: Set hadoop environment
+  tags: [ config ]
+  become: yes
+  lineinfile:
+    path: /home/hadoop/.bash_aliases
+    regexp: "{{ item.key }}"
+    line: "{{ item.value }}"
+    create: yes
+    owner: hadoop
+    group: hadoop
+  with_items:
+    # - { "key": "export SPARK_HOME=", "value": "/opt/spark"}
+    - { "key": "/opt/spark/bin", "value": "export PATH=$PATH:/opt/spark/bin:/opt/spark/sbin"}
+
+# sudo mkdir /var/log/spark
+# sudo mkdir /var/lib/spark
 - name: Create spark directories
   become: yes
   file:
