@@ -6,9 +6,9 @@
   include: "config.yml"
   tags: [ config ]
 
-# - name: Incluse ssh
-#   include: "ssh.yml"
-#   tags: [ never, ssh ]
+- name: Incluse ssh
+  include: "ssh.yml"
+  tags: [ never ]
 
 - name: Stop spark service
   include: "stop.yml"

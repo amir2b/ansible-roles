@@ -1,1 +1,14 @@
----
+- name: Downlaod id_rsa.pub
+  tags: [ ssh_generate ]
+  become: true
+  fetch:
+    src: /home/hadoop/.ssh/id_rsa.pub
+    dest: files/id_rsa.pub
+    flat: yes
+
+- name: Set authorized key took from file
+  tags: [ ssh ]
+  become: true
+  authorized_key:
+    user: hadoop
+    key: "{{ lookup('file', 'files/id_rsa.pub') }}"
