@@ -11,4 +11,4 @@
 # uname -s && lsb_release -sr
 - name: System details
   debug:
-    msg: "{{ ansible_distribution }} {{ ansible_distribution_version}} [CPU: {{ ansible_processor_vcpus }}] [Ram: {{ (ansible_memtotal_mb/1024) |round|int }}]"
+    msg: "{{ ansible_distribution }} {{ ansible_distribution_version}} [CPU: {{ ansible_processor_vcpus }}] [Ram: {{ (ansible_memtotal_mb/1024) | round(0, 'ceil') | int }}]"
