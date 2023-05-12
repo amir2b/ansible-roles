@@ -1,0 +1,58 @@
+---
+
+- name: Install kibana
+  hosts: kibana_servers
+  tasks:
+    - include_role:
+        name: details
+        apply:
+          tags: details
+      tags: [ never, details ]
+
+    - include_role:
+        name: new_server
+        apply:
+          tags: new_server
+      tags: [ new_server ]
+
+    - include_role:
+        name: resolv
+
+    # sudo apt install apt-transport-https
+    - name: Install proceeding
+      become: true
+      apt:
+        name: apt-transport-https
+        update_cache: yes
+      tags: [ setup, packages ]
+
+    # wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+    - name: Add an apt key by id from a keyserver
+      become: true
+      apt_key:
+        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+      tags: [ setup, packages ]
+
+    # echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+    - name: Add elasticsearch repository into sources list
+      become: true
+      apt_repository:
+        repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
+        filename: elastic-7.x
+      tags: [ setup, packages ]
+
+    # sudo apt-get update && sudo apt-get install kibana
+    - name: Install kibana
+      become: true
+      apt:
+        name: kibana
+        update_cache: yes
+      tags: [ setup, packages ]
+
+    # sudo dpkg --set-selections kibana hold
+    - name: Prevent kibana from being upgraded
+      become: true
+      dpkg_selections:
+        name: kibana
+        selection: hold
+      tags: [ setup, packages ]

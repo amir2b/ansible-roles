@@ -1,0 +1,50 @@
+backups:
+  hosts:
+    backup:
+      ansible_host:
+
+elasticsearch:
+  children:
+
+    coordinate_nodes:
+      hosts:
+        coordinate-node-1:
+          ansible_host:
+          ELASTICSEARCH_NODE_ATTR_RACK_ID:
+      vars:
+        ELASTICSEARCH_NODE_ROLES: [ ingest, remote_cluster_client, transform ]
+
+    master_nodes:
+      hosts:
+        master-node-1:
+          ansible_host:
+          ELASTICSEARCH_NODE_ATTR_RACK_ID:
+      vars:
+        ELASTICSEARCH_NODE_ROLES: master
+
+    data_nodes:
+      hosts:
+        data-node-1:
+          ansible_host:
+          ELASTICSEARCH_NODE_ATTR_RACK_ID:
+      vars:
+        ELASTICSEARCH_NODE_ROLES: data
+
+  vars:
+    ansible_user:
+    ansible_password:
+    ansible_become_password:
+
+    timezone:
+
+    JVM_HEAP_SIZE: 32g
+    ELASTICSEARCH_VERSION: 7.17.10
+    ELASTICSEARCH_CLUSTER_NAME:
+    ELASTICSEARCH_DISCOVERY_SEED_HOSTS: '["master-node-1", "master-node-2", "master-node-3"]'
+    ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES: '["master-node-1", "master-node-2","master-node-3"]'
+    ELASTICSEARCH_BACKUP_SERVER_IP:
+    ELASTICSEARCH_BACKUP_SERVER_PATH: /storage/nfs/elastic
+    ELASTICSEARCH_NODES:
+      - { name: coordinate-node-1, ip: }
+      - { name: master-node-1, ip: }
+      - { name: data-node-1, ip: }

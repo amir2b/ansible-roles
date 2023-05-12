@@ -1,0 +1,30 @@
+---
+
+- name: Run
+  hosts:
+    - elasticsearch
+  tasks:
+    - name: Show details
+      tags: [ never, details ]
+      include_role:
+        name: details
+        apply:
+          tags: details
+
+    - name: Config new servers
+      tags: [ new_server ]
+      include_role:
+        name: new_server
+        apply:
+          tags: new_server
+
+    - name: Config resolv
+      include_role:
+        name: resolv
+
+    - name: Install elasticsearch
+      tags: [ elasticsearch, setup, config, security, backup, cert, cert_generate, auth, stop, start, restart ]
+      include_role:
+        name: elasticsearch
+        apply:
+          tags: elasticsearch
