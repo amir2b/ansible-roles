@@ -10,10 +10,10 @@
     line: "{{ item.ip }}\t{{ item.host }}"
   loop: "{{ ips_hosts }}"
 
-- name: Incluse spark config
-  include: "config_spark.yml"
-  tags: [ config ]
-
 - name: Incluse hadoop config
   include: "config_hadoop.yml"
+  tags: [ config ]
+
+- name: Incluse spark config
+  include: "config_spark.yml"
   tags: [ config ]

@@ -5,3 +5,5 @@ hdfs_replication: 1
 node_master: localhost
 hadoop_workers: []
 ips_hosts: []
+yarn_nodemanager_resource_memory_mb: 1536
+yarn_scheduler_maximum_allocation_mb: 1536

@@ -13,8 +13,8 @@
     owner: hadoop
     group: hadoop
   with_items:
-    # - { "key": "export SPARK_HOME=", "value": "/opt/spark"}
-    - { "key": "/opt/spark/bin", "value": "export PATH=$PATH:/opt/spark/bin:/opt/spark/sbin"}
+    - { "key": "/opt/spark/bin", "value": "export PATH=$PATH:/opt/spark/bin"}
+    # - { "key": "/opt/spark/bin", "value": "export PATH=$PATH:/opt/spark/bin:/opt/spark/sbin"}
 
 # sudo mkdir /var/log/spark
 # sudo mkdir /var/lib/spark

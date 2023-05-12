@@ -102,9 +102,9 @@
     - { "key": "yarn.acl.enable", "value": "0"}
     - { "key": "yarn.resourcemanager.hostname", "value": "{{ node_master }}"}
     - { "key": "yarn.nodemanager.aux-services", "value": "mapreduce_shuffle"}
-    - { "key": "yarn.nodemanager.resource.memory-mb", "value": "1536"}
-    - { "key": "yarn.scheduler.maximum-allocation-mb", "value": "1536"}
-    - { "key": "yarn.scheduler.minimum-allocation-mb", "value": "128"}
+    # - { "key": "yarn.nodemanager.resource.memory-mb", "value": "{{ yarn_nodemanager_resource_memory_mb }}"}
+    # - { "key": "yarn.scheduler.maximum-allocation-mb", "value": "{{ yarn_scheduler_maximum_allocation_mb }}"}
+    # - { "key": "yarn.scheduler.minimum-allocation-mb", "value": "128"}
     - { "key": "yarn.nodemanager.vmem-check-enabled", "value": "false"}
   tags: [ config ]
 
